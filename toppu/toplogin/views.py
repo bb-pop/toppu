@@ -3,7 +3,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import CustomUserCreationForm
 from django.contrib.auth import views as auth_views
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .models import CustomUser
 
 
 def register(request):
@@ -23,4 +24,15 @@ def home(request):
 
 class CustomLoginView(auth_views.LoginView):
     template_name = 'login.html'
+
+def is_manager(user):
+    return user.role == 'manager'
+
+@login_required
+@user_passes_test(is_manager)
+def manager_dashboard(request):
+    managers = CustomUser.objects.filter(role='manager')
+    cashiers = CustomUser.objects.filter(role='cashier')
+    users = list(managers) + list(cashiers)
+    return render(request, 'manager_dashboard.html', {'users': users})
 

@@ -1,4 +1,4 @@
-<!-- accounts/templates/accounts/home.html -->
+<!-- facerecog/templates/home.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,6 +13,9 @@
     <p>Role: {{ user.get_role_display }}</p>
     {% if user.photo_profile %}
         <img src="{{ user.photo_profile.url }}" alt="Profile Photo" style="width:200px;height:auto;">
+    {% endif %}
+    {% if user.role == 'manager' %}
+        <p><a href="{% url 'manager_dashboard' %}">Go to Manager Dashboard</a></p>
     {% endif %}
     <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
