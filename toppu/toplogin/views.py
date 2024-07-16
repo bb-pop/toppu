@@ -1,10 +1,11 @@
 # accounts/views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login
 from .forms import CustomUserCreationForm
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import CustomUser
+from .forms import UserUpdateForm
 
 
 def register(request):
@@ -36,3 +37,15 @@ def manager_dashboard(request):
     users = list(managers) + list(cashiers)
     return render(request, 'manager_dashboard.html', {'users': users})
 
+@login_required
+@user_passes_test(is_manager)
+def user_detail(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('manager_dashboard')
+    else:
+        form = UserUpdateForm(instance=user)
+    return render(request, 'user_detail.html', {'form': form, 'user': user})
